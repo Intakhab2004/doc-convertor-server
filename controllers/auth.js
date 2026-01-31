@@ -3,11 +3,113 @@ const OTP = require("../models/OTP")
 const PersonalDetails = require("../models/PersonalDetails")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
-const { signupSchema } = require("../schemas/signupSchema")
+const { signupSchema, usernameSchema } = require("../schemas/signupSchema")
 const { signinSchema } = require("../schemas/signinSchema")
 const { otpVerifySchema } = require("../schemas/otpSchema")
 const { mailSender } = require("../config/mailConfig")
 const { generateAccessToken, generateRefreshToken } = require("../helpers/generateToken")
+
+
+exports.resendOtp = async(req, res) => {
+    const { userId } = req.body;
+    if(!userId){
+        console.log("User is not provided");
+        return res.status(402).json({
+            success: false,
+            message: "Please provide the userId"
+        })
+    }
+
+    try{
+        // Checking if the user exists or not
+        const user = await User.findById(userId);
+        if(!user){
+            return res.status(403).json({
+                success: false,
+                message: "User does not exists"
+            })
+        }
+
+        if(user?.isVerified){
+            return res.status(401).json({
+                success: false,
+                message: "User is already verified"
+            })
+        }
+
+        // Deleting all the OTP before setting the new one
+        await OTP.deleteMany({userId});
+
+        // Generating otp and saving it in the database
+        const otp = Math.floor(Math.random() * 900000 + 100000).toString();
+        await OTP.create({
+            userId: userId, 
+            email: user.email, 
+            username: user.username, 
+            otp: otp
+        })
+
+        // Sending otp to user via mail
+        const mailResponse = await mailSender({email: user.email, username: user.username, otp});
+        if(!mailResponse.success){
+            console.log("Something went wrong while sending the mail");
+            return res.status(400).json({
+                success: false,
+                message: "Error while sending mail"
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Otp resent successfully"
+        })
+    }
+    catch(error){
+        console.log("Something went wrong: ", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
+
+exports.uniqueUsername = async(req, res) => {
+    const { username } = req.body;
+
+    // Zod validation
+    const validationResult = usernameSchema.safeParse(username);
+    if(!validationResult.success){
+        console.log("Validation failed: ", validationResult.error.issues);
+        return res.status(403).json({
+            success: false,
+            message: "Please provide the valid username"
+        })
+    }
+
+    try{
+        const existingUsername = await User.findOne({username: validationResult.data});
+        if(existingUsername){
+            console.log("User already exists with this username");
+            return res.status(401).json({
+                success: false,
+                message: "Username is taken"
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Username is available"
+        })
+    }
+    catch(error){
+        console.log("Something went wrong: ", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
 
 
 exports.signUp = async(req, res) => {
@@ -308,6 +410,27 @@ exports.refreshToken = async(req, res) => {
             success: true,
             message: "Token refreshed successfully",
             newAccessToken
+        })
+    }
+    catch(error){
+        console.log("Something went wrong: ", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
+
+exports.logout = async(_, res) => {
+    try{
+        res.clearCookie("refreshToken", {
+            httpOnly: true
+        })
+
+        res.status(200).json({
+            success: true, 
+            message: "User logged out successfully"
         })
     }
     catch(error){
