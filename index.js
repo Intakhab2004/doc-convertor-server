@@ -1,7 +1,9 @@
 const express = require("express")
-const dbConnect = require("./config/dbConnect");
+const dbConnect = require("./config/dbConnect")
+const cors = require("cors")
+const fileupload = require("express-fileupload")
 const authRoutes = require("./routes/auth")
-const cors = require("cors");
+const servicesRoute = require("./routes/services")
 require("dotenv").config();
 
 const app = express();
@@ -9,9 +11,14 @@ const app = express();
 // Mounting middleware
 app.use(express.json());
 app.use(cors());
+app.use(fileupload({
+    useTempFiles: true,
+    tempFileDir: "/tmp/"
+}))
 
 // Mounting api-url on app 
-app.use("/api/v1/user", authRoutes)
+app.use("/api/v1/user", authRoutes);
+app.use("/api/v1/services", servicesRoute);
 
 // Starting the server
 const PORT = process.env.PORT || 5000;
