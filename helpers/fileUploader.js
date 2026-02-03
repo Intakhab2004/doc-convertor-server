@@ -1,11 +1,14 @@
 const cloudinary = require("../config/cloudinaryConfig")
 
-async function uploadFileToCloudinary(file, folder){
+async function uploadFileToCloudinary(file, folder, fileName){
     return await cloudinary.uploader.upload(
         file,
         {
             folder: folder,
-            resource_type: "auto"
+            resource_type: "raw",
+            use_filename: true,
+            unique_filename: false,
+            public_id: fileName.replace(/\.[^/.]+$/, "")
         }
     )
 }
