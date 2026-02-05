@@ -4,6 +4,7 @@ const cors = require("cors")
 const fileupload = require("express-fileupload")
 const authRoutes = require("./routes/auth")
 const servicesRoute = require("./routes/services")
+const contactRoute = require("./routes/contact")
 require("dotenv").config();
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(fileupload({
 // Mounting api-url on app 
 app.use("/api/v1/user", authRoutes);
 app.use("/api/v1/services", servicesRoute);
+app.use("/api/v1/contact", contactRoute);
 
 // Starting the server
 const PORT = process.env.PORT || 5000;

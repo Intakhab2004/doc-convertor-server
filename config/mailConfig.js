@@ -1,6 +1,5 @@
 // const nodemailer = require("nodemailer");
 const axios = require("axios");
-const otpTemplate = require("../mail-template/otpTemplate");
 
 
 // exports.mailSender = async({email, username, otp}) => {
@@ -48,7 +47,7 @@ const otpTemplate = require("../mail-template/otpTemplate");
 
 
 
-exports.mailSender = async({email, username, otp}) => {
+exports.mailSender = async({email, subject, emailBody}) => {
     url = "https://api.brevo.com/v3/smtp/email";
     body = {
         sender: {
@@ -56,8 +55,8 @@ exports.mailSender = async({email, username, otp}) => {
             email: process.env.BREVO_MAIL_USER
         },
         to: [{ email }],
-        subject: "DocConvertor | Verification Code",
-        htmlContent: otpTemplate(username, otp)
+        subject: subject,
+        htmlContent: emailBody
     }
     try{
         await axios.post(
