@@ -8,6 +8,7 @@ const { signinSchema } = require("../schemas/signinSchema")
 const { otpVerifySchema } = require("../schemas/otpSchema")
 const { mailSender } = require("../config/mailConfig")
 const { generateAccessToken, generateRefreshToken } = require("../helpers/generateToken")
+const otpTemplate = require("../mail-template/otpTemplate");
 
 
 exports.resendOtp = async(req, res) => {
@@ -50,7 +51,11 @@ exports.resendOtp = async(req, res) => {
         })
 
         // Sending otp to user via mail
-        const mailResponse = await mailSender({email: user.email, username: user.username, otp});
+        const mailResponse = await mailSender({
+            email: user.email, 
+            subject: "DocMaster | Verification Code", 
+            emailBody: otpTemplate(otp, user.username)
+        })
         if(!mailResponse.success){
             console.log("Something went wrong while sending the mail");
             return res.status(400).json({
@@ -200,7 +205,11 @@ exports.signUp = async(req, res) => {
         });
 
         // Sending verification mail
-        const mailResponse = await mailSender({email: userData.email, username: userData.username, otp});
+        const mailResponse = await mailSender({
+            email: userData.email, 
+            subject: "DocMaster | Verification Code", 
+            emailBody: otpTemplate(otp, userData.username)
+        })
         if(!mailResponse.success){
             console.log("Something went wrong while sending the mail");
             return res.status(400).json({
