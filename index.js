@@ -11,7 +11,10 @@ const app = express();
 
 // Mounting middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true
+}));
 app.use(fileupload({
     useTempFiles: true,
     tempFileDir: "/tmp/"

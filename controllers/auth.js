@@ -80,7 +80,7 @@ exports.resendOtp = async(req, res) => {
 
 
 exports.uniqueUsername = async(req, res) => {
-    const { username } = req.body;
+    const username = req.query.username.trim();
 
     // Zod validation
     const validationResult = usernameSchema.safeParse(username);
