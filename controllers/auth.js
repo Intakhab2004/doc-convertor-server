@@ -32,7 +32,7 @@ exports.resendOtp = async(req, res) => {
         }
 
         if(user?.isVerified){
-            return res.status(401).json({
+            return res.status(400).json({
                 success: false,
                 message: "User is already verified"
             })
@@ -96,7 +96,7 @@ exports.uniqueUsername = async(req, res) => {
         const existingUsername = await User.findOne({username: validationResult.data});
         if(existingUsername){
             console.log("User already exists with this username");
-            return res.status(401).json({
+            return res.status(400).json({
                 success: false,
                 message: "Username is taken"
             })
@@ -261,7 +261,7 @@ exports.verifyOtp = async(req, res) => {
         }
 
         if(user && user.isVerified){
-            return res.status(401).json({
+            return res.status(400).json({
                 success: false,
                 message: "User is already verified"
             })
@@ -348,7 +348,7 @@ exports.signIn = async(req, res) => {
         // Verifying the password
         const checkPassword = await bcrypt.compare(password, user.password);
         if(!checkPassword){
-            return res.status(401).json({
+            return res.status(400).json({
                 success: false,
                 message: "Incorrect password, Please give the valid password"
             })
@@ -383,7 +383,7 @@ exports.signIn = async(req, res) => {
 
 exports.refreshToken = async(req, res) => {
     try{
-        const token = req.cookies?.token;
+        const token = req.cookies?.refreshToken;
         if(!token){
             console.log("Refresh token expires");
             return res.status(401).json({
