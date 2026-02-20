@@ -2,6 +2,7 @@ const express = require("express")
 const dbConnect = require("./config/dbConnect")
 const cors = require("cors")
 const fileupload = require("express-fileupload")
+const cookieParser = require("cookie-parser")
 const authRoutes = require("./routes/auth")
 const servicesRoute = require("./routes/services")
 const contactRoute = require("./routes/contact")
@@ -11,6 +12,7 @@ const app = express();
 
 // Mounting middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors({
     origin: "http://localhost:3000",
     credentials: true
