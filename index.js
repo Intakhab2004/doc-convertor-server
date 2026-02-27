@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser")
 const authRoutes = require("./routes/auth")
 const servicesRoute = require("./routes/services")
 const contactRoute = require("./routes/contact")
+const getRoute = require("./routes/getData")
 require("dotenv").config();
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(fileupload({
 app.use("/api/v1/user", authRoutes);
 app.use("/api/v1/services", servicesRoute);
 app.use("/api/v1/contact", contactRoute);
+app.use("/api/v1/getData", getRoute);
 
 // Starting the server
 const PORT = process.env.PORT || 5000;

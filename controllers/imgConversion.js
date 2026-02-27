@@ -100,7 +100,7 @@ exports.imageToPdf = async(req, res) => {
 
 exports.pdfToImage = async(req, res) => {
     try{
-        const pages = req.body.pages;
+        const pages = req.body?.pages;
         const file = req.files.file;
         const fileName = file.name;
 
